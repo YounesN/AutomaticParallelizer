@@ -1,4 +1,5 @@
 #include "stencil.hpp"
+#include <fstream>
 
 Stencil::Stencil(std::string fn) : data(NULL)
 {
@@ -22,7 +23,7 @@ Stencil::~Stencil()
 // This function will read the data from file name and store it inside the object
 // nx, ny, nz are the dimensions of the 3D array
 // and the data goes into this->data
-Stencil::ReadData()
+void Stencil::ReadData()
 {
   // local varibles
   int i, j, k;
@@ -39,7 +40,7 @@ Stencil::ReadData()
     // for now let's just exit
     if(data != NULL) {
       std::cerr << "Data is already been allocated!" << std::endl;
-      return -1;
+      return;
     }
 
     // allocate the 3D array based on the size

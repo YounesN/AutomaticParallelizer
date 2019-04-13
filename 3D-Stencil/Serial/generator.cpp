@@ -2,6 +2,7 @@
 #include <stdlib.h>     /* atoi */
 #include <cstdlib>      /* rand and srand */
 #include <ctime>        /* time */
+#include <fstream>      /* ofstream */
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +14,8 @@ int main(int argc, char *argv[])
   }
 
   // output object
-  std::ofstream ofile(argv[1]);
+  std::ofstream ofile;
+  ofile.open(argv[1]);
 
   // check to see if the file is open
   if(!ofile.is_open()) {
@@ -31,7 +33,7 @@ int main(int argc, char *argv[])
   srand (static_cast <unsigned> (time(0)));
 
   // output the first line which is the dimensions
-  ofile << nx << ny << nz << std::endl;
+  ofile << nx << " " << ny << " " << nz << std::endl;
   for(int i=0 ; i<nx; i++) {
     for(int j=0; j<ny; j++) {
       for(int k=0; k<nz; k++) {

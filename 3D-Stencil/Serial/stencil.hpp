@@ -15,4 +15,4 @@ public:
 
   // This function will read the data from file name and store it inside the object
   void ReadData();
-}
+};

@@ -1,4 +1,5 @@
 #include <iostream>
+#include "stencil.hpp"
 
 int main(int argc, char * argv[])
 {
