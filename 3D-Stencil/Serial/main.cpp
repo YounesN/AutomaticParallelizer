@@ -19,5 +19,13 @@ int main(int argc, char * argv[])
   // read data from the file
   stencil.ReadData();
 
+  // run stencil code for 20 iterations
+  stencil.RunStencil(20);
+
+  // output data to another file
+  std::string output_name(argv[1]);
+  output_name = "output_" + output_name;
+  stencil.OutputData(output_name);
+
   return 0;
 }
