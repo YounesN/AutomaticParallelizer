@@ -6,25 +6,29 @@
 int main(int argc, char * argv[])
 {
   // Check the number of parameters
-  if(argc < 3) {
+  if(argc < 4) {
     // Tell the user how to run the program
-    std::cerr << "Usage: " << argv[0] << " <filename> <iterations>" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " <filename> <iterations> <number_of_threads>" << std::endl;
     return -1;
   }
-
-#ifdef _OPENMP
-  // print some OpenMP info
-  std::cout << "OpenMP is activated!" << std::endl;
-  std::cout << "Number of threads: " << omp_get_thread_num() << std::endl;
-#else
-  std::cout << "OpenMP is not activated!" << std::endl;
-#endif
 
   // store the filename given by user into a string
   std::string filename(argv[1]);
 
   // get the number of iterations or time
   int iterations = atoi(argv[2]);
+
+#ifdef _OPENMP
+    // set 4 threads for now
+  int numThreads = atoi(argv[3]);
+  omp_set_num_threads(numThreads);
+
+  // print some OpenMP info
+  std::cout << "OpenMP is activated!" << std::endl;
+  std::cout << "Number of threads: " << numThreads << std::endl;
+#else
+    std::cout << "OpenMP is not activated!" << std::endl;
+#endif
 
   // Create an object of stencil
   Stencil stencil(filename, iterations);
