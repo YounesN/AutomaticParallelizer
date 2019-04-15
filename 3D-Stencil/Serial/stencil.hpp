@@ -12,7 +12,7 @@ class Stencil {
   void delete3DArray(float ***arr);
 
   // allocate 3D array with some padding
-  void allocate3DArray(float ***arr);
+  void allocate3DArray(float ****arr);
 
   // swap the content of arrays
   void swap3DArray(float ***arr1, float ***arr2);

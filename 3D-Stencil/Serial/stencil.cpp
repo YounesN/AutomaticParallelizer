@@ -32,11 +32,11 @@ void Stencil::delete3DArray(float ***arr)
 }
 
 // allocate a 3D array
-void Stencil::allocate3DArray(float ***arr)
+void Stencil::allocate3DArray(float ****arr)
 {
   // check to see if data is already allocated
   // for now let's just exit
-  if(arr != NULL) {
+  if((*arr) != NULL) {
     std::cerr << "Data is already been allocated!" << std::endl;
     return;
   }
@@ -47,14 +47,14 @@ void Stencil::allocate3DArray(float ***arr)
 
   // allocate the 3D array based on the size
   // and initialize to 0.0
-  arr = new float**[nx + pad];
+  (*arr) = new float**[nx + pad];
   for(int i=0; i<nx+pad; i++) {
-    arr[i] = new float*[ny + pad];
+    (*arr)[i] = new float*[ny + pad];
     for(int j=0; j<ny+pad; j++) {
-      arr[i][j] = new float[nz + pad];
+      (*arr)[i][j] = new float[nz + pad];
 
       // set every elemento to zero
-      memset(arr[i][j], 0.0, sizeof(float) * (nz+pad));
+      memset((*arr)[i][j], 0.0, sizeof(float) * (nz+pad));
     }
   }
 }
@@ -83,8 +83,8 @@ void Stencil::ReadData()
     ifile >> nx >> ny >> nz;
 
     // allocate both A0 and ANext arrays
-    allocate3DArray(A0);
-    allocate3DArray(ANext);
+    allocate3DArray(&A0);
+    allocate3DArray(&ANext);
 
     // read the data
     for(i=padding; i<nx+padding; i++) {
