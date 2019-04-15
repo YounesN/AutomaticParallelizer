@@ -1,5 +1,6 @@
 #include "stencil.hpp"
 #include <fstream>
+#include <cstring>
 
 Stencil::Stencil(std::string fn, int it) : A(NULL)
 {
