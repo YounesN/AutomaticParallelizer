@@ -4,21 +4,18 @@ class Stencil {
   // private members
   std::string filename;
   int nx, ny, nz;
-  float ***A0;
-  float ***ANext;
+  float ****A;
   int padding;
+  int iterations;
 
   // delete a 3D array
-  void delete3DArray(float ***arr);
+  void delete4DArray(float ****arr);
 
   // allocate 3D array with some padding
-  void allocate3DArray(float ****arr);
-
-  // swap the content of arrays
-  void swap3DArray(float ***arr1, float ***arr2);
+  void allocate4DArray(float *****arr);
 public:
   // constructor of the class
-  Stencil(std::string fn);
+  Stencil(std::string fn, int it);
 
   // desctructor of the class
   ~Stencil();
@@ -27,7 +24,7 @@ public:
   void ReadData();
 
   // run stencil for t iterations
-  void RunStencil(int t);
+  void RunStencil();
 
   // write data to output file
   void OutputData(std::string output_name);

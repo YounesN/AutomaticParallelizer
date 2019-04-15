@@ -5,24 +5,27 @@
 int main(int argc, char * argv[])
 {
   // Check the number of parameters
-  if(argc < 2) {
+  if(argc < 3) {
     // Tell the user how to run the program
-    std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " <filename> <iterations>" << std::endl;
     return -1;
   }
 
   // store the filename given by user into a string
   std::string filename(argv[1]);
 
+  // get the number of iterations or time
+  int iterations = atoi(argv[2]);
+
   // Create an object of stencil
-  Stencil stencil(filename);
+  Stencil stencil(filename, iterations);
 
   // read data from the file
   stencil.ReadData();
 
   // run stencil code for 20 iterations
   std::clock_t c_start = std::clock();
-  stencil.RunStencil(20);
+  stencil.RunStencil();
   std::clock_t c_end = std::clock();
 
   // print time took to run the algorithm
