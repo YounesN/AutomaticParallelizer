@@ -3,14 +3,14 @@ CFLAGS=-I.
 DEPS = stencil.hpp
 all: main.out generator.out
 
-%.o: %.cpp %.c $(DEPS)
+%.o: %.cpp $(DEPS)
 	$(CC) -fopenmp -c -o $@ $< $(CFLAGS)
 
 main.out: main.o stencil.o
-	$(CC) -fopenmp -o main.out main.o stencil.cpp.pluto.o
+	$(CC) -fopenmp -o main.out main.o stencil.o
 
 generator.out: generator.o
 	$(CC) -fopenmp -o generator.out generator.o
 
 clean:
-	rm -f *.out *.o *.out
+	rm -f *.out *.o *.out data_* output_*

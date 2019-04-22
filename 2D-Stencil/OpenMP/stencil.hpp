@@ -3,16 +3,16 @@
 class Stencil {
   // private members
   std::string filename;
-  int nx, ny, nz;
-  float ****A;
+  int nx, ny;
+  float ***A;
   int padding;
   int iterations;
 
   // delete a 3D array
-  void delete4DArray(float ****arr);
+  void delete3DArray(float ***arr);
 
   // allocate 3D array with some padding
-  void allocate4DArray(float *****arr);
+  void allocate3DArray(float ****arr);
 public:
   // constructor of the class
   Stencil(std::string fn, int it);
