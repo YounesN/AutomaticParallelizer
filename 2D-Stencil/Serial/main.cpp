@@ -1,6 +1,7 @@
 #include <iostream>
 #include "stencil.hpp"
 #include <ctime>
+#include "gettime.h"
 
 int main(int argc, char * argv[])
 {
@@ -25,13 +26,15 @@ int main(int argc, char * argv[])
   stencil.ReadData();
 
   // run stencil code for 20 iterations
-  std::clock_t c_start = std::clock();
+  double wall0 = get_wall_time();
+  double cpu0  = get_cpu_time();
   stencil.RunStencil();
-  std::clock_t c_end = std::clock();
+  double wall1 = get_wall_time();
+  double cpu1  = get_cpu_time();
 
   // print time took to run the algorithm
-  long double time_elapsed_ms = 1000.0 * (c_end-c_start) / CLOCKS_PER_SEC;
-  std::cout << "CPU time used: " << time_elapsed_ms << " ms\n";
+  std::cout << "Wall time: " << wall1 - wall0 << " s\n";
+  std::cout << "CPU time: " << cpu1 - cpu0 << " s\n";
 
   // output data to another file
   std::string output_name(argv[1]);
