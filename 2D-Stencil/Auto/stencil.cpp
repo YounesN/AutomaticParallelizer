@@ -96,9 +96,7 @@ void Stencil::RunStencil()
 {
   int i, j, it;
 
-#ifdef _OPENMP
-    #pragma omp parallel for default(shared) private(it, i, j)
-#endif
+#pragma scop
   for(it=0; it<iterations-1; it++) {
     for(i=padding; i<nx+padding; i++) {
       for(j=padding; j<ny+padding; j++) {
@@ -113,6 +111,7 @@ void Stencil::RunStencil()
       }
     }
   }
+#pragma endscop
 }
 
 void Stencil::OutputData(std::string output_name)

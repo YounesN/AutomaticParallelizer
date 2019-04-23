@@ -21,21 +21,18 @@ Stencil::Stencil(std::string fn, int it)
 Stencil::~Stencil()
 {
   // free array
-  delete2DArray(A);
+  delete1DArray(A);
 }
 
-// delete a 2D array
-void Stencil::delete2DArray(float **arr)
+// delete a 1D array
+void Stencil::delete1DArray(float *arr)
 {
   // free up data array
-  for(int i=0; i<nx; i++) {
-    delete [] arr[i];
-  }
   delete [] arr;
 }
 
-// allocate a 2D array
-void Stencil::allocate2DArray(float ***arr)
+// allocate a 1D array
+void Stencil::allocate1DArray(float **arr)
 {
   // check to see if data is already allocated
   // for now let's just exit
@@ -50,12 +47,9 @@ void Stencil::allocate2DArray(float ***arr)
 
   // allocate the 3D array based on the size
   // and initialize to 0.0
-  (*arr) = new float*[nx+pad];
-  for(int i=0; i<nx+pad; i++) {
-    (*arr)[i] = new float[ny + pad];
-      // set every elemento to zero
-      memset((*arr)[i], 0.0, sizeof(float) * (ny+pad));
-  }
+  (*arr) = new float[nx+pad];
+  memset((*arr), 0.0, sizeof(float) * (nx+pad));
+  
 }
 
 // This function will read the data from file name and store it inside the object
@@ -64,7 +58,7 @@ void Stencil::allocate2DArray(float ***arr)
 void Stencil::ReadData()
 {
   // local varibles
-  int i, j;
+  int i;
 
   // create input file stream
   std::ifstream ifile(filename.c_str());
@@ -72,17 +66,15 @@ void Stencil::ReadData()
   // check if the file is open
   if(ifile.is_open()) {
     // the first line should include the dimensions of 3D array
-    ifile >> nx >> ny;
+    ifile >> nx;
 
     // allocate both A0 and ANext arrays
-    allocate2DArray(&A);
-    allocate2DArray(&B);
+    allocate1DArray(&A);
+    allocate1DArray(&B);
 
     // read the data
     for(i=padding; i<nx+padding; i++) {
-      for(j=padding; j<ny+padding; j++) {
-        ifile >> A[i][j];
-      }
+      ifile >> A[i];
     }
 
     // close the file once we are done!
@@ -96,23 +88,16 @@ void Stencil::RunStencil()
 {
   int i, j, it;
 
-#ifdef _OPENMP
-    #pragma omp parallel for default(shared) private(it, i, j)
-#endif
+#pragma scop
   for(it=0; it<iterations-1; it++) {
     for(i=padding; i<nx+padding; i++) {
-      for(j=padding; j<ny+padding; j++) {
-          B[i][j] = (A[i][j-1] + A[i][j+1] +
-                     A[i-1][j] + A[i+1][j] +
-                     A[i][j]) * (1.0/5.0);
-      }
+      B[i] = (A[i-1] + A[i+1] + A[i]) * (1.0/3.0);
     }
     for(i=padding; i<nx+padding; i++) {
-      for(j=padding; j<ny+padding; j++) {
-          A[i][j] = B[i][j];
-      }
+      A[i] = B[i];
     }
   }
+#pragma endscop
 }
 
 void Stencil::OutputData(std::string output_name)
@@ -120,11 +105,9 @@ void Stencil::OutputData(std::string output_name)
   std::ofstream ofile;
   ofile.open(output_name.c_str());
 
-  ofile << nx << " " << ny << std::endl;
+  ofile << nx << std::endl;
   for(int i=padding ; i<nx+padding; i++) {
-    for(int j=padding; j<ny+padding; j++) {
-      ofile << A[i][j] << " ";
-    }
-    ofile << std::endl;
+    ofile << A[i] << " ";
   }
+  ofile << std::endl;
 }

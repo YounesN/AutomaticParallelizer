@@ -4,15 +4,16 @@ class Stencil {
   // private members
   std::string filename;
   int nx, ny;
-  float ***A;
+  float **A;
+  float **B;
   int padding;
   int iterations;
 
-  // delete a 3D array
-  void delete3DArray(float ***arr);
+  // delete a 2D array
+  void delete2DArray(float **arr);
 
-  // allocate 3D array with some padding
-  void allocate3DArray(float ****arr);
+  // allocate 2D array with some padding
+  void allocate2DArray(float ***arr);
 public:
   // constructor of the class
   Stencil(std::string fn, int it);

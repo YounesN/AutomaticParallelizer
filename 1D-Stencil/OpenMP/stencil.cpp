@@ -1,8 +1,9 @@
 #include "stencil.hpp"
 #include <fstream>
 #include <cstring>
+#include <omp.h>
 
-Stencil::Stencil(std::string fn, int it) : A(NULL)
+Stencil::Stencil(std::string fn, int it)
 {
   // store inputs into member variables
   this->filename = fn;
@@ -10,30 +11,28 @@ Stencil::Stencil(std::string fn, int it) : A(NULL)
     
   // we are going to add some padding to simplify stencil operations
   padding = 1;
+
+  // Set A and B to NULL
+  A = NULL;
+  B = NULL;
 }
 
 // clean up the memory allocations
 Stencil::~Stencil()
 {
   // free array
-  delete3DArray(A);
+  delete1DArray(A);
 }
 
-// delete a 3D array
-void Stencil::delete3DArray(float ***arr)
+// delete a 1D array
+void Stencil::delete1DArray(float *arr)
 {
   // free up data array
-  for(int it=0; it<iterations; it++) {
-    for(int i=0; i<nx; i++) {
-      delete [] arr[it][i];
-    }
-    delete [] arr[it];
-  }
   delete [] arr;
 }
 
-// allocate a 3D array
-void Stencil::allocate3DArray(float ****arr)
+// allocate a 1D array
+void Stencil::allocate1DArray(float **arr)
 {
   // check to see if data is already allocated
   // for now let's just exit
@@ -48,15 +47,9 @@ void Stencil::allocate3DArray(float ****arr)
 
   // allocate the 3D array based on the size
   // and initialize to 0.0
-  (*arr) = new float**[iterations];
-  for(int it=0; it<iterations; it++) {
-    (*arr)[it] = new float*[nx + pad];
-    for(int i=0; i<nx+pad; i++) {
-      (*arr)[it][i] = new float[ny + pad];
-      
-      memset((*arr)[it][i], 0.0, sizeof(float) * (ny + pad));
-    }
-  }
+  (*arr) = new float[nx+pad];
+  memset((*arr), 0.0, sizeof(float) * (nx+pad));
+  
 }
 
 // This function will read the data from file name and store it inside the object
@@ -65,7 +58,7 @@ void Stencil::allocate3DArray(float ****arr)
 void Stencil::ReadData()
 {
   // local varibles
-  int i, j;
+  int i;
 
   // create input file stream
   std::ifstream ifile(filename.c_str());
@@ -73,16 +66,15 @@ void Stencil::ReadData()
   // check if the file is open
   if(ifile.is_open()) {
     // the first line should include the dimensions of 3D array
-    ifile >> nx >> ny;
+    ifile >> nx;
 
     // allocate both A0 and ANext arrays
-    allocate3DArray(&A);
+    allocate1DArray(&A);
+    allocate1DArray(&B);
 
     // read the data
     for(i=padding; i<nx+padding; i++) {
-      for(j=padding; j<ny+padding; j++) {
-	ifile >> A[0][i][j];
-      }
+      ifile >> A[i];
     }
 
     // close the file once we are done!
@@ -95,12 +87,16 @@ void Stencil::ReadData()
 void Stencil::RunStencil()
 {
   int i, j, it;
+
+#ifdef _OPENMP
+    #pragma omp parallel for default(shared) private(it, i, j)
+#endif
   for(it=0; it<iterations-1; it++) {
     for(i=padding; i<nx+padding; i++) {
-      for(j=padding; j<ny+padding; j++) {
-	      A[it+1][i][j] = (A[it][i][j-1] + A[it][i][j+1] +
-          A[it][i-1][j] + A[it][i+1][j] - 4 * A[it][i][j]);
-      }
+      B[i] = (A[i-1] + A[i+1] + A[i]) * (1.0/3.0);
+    }
+    for(i=padding; i<nx+padding; i++) {
+      A[i] = B[i];
     }
   }
 }
@@ -109,12 +105,10 @@ void Stencil::OutputData(std::string output_name)
 {
   std::ofstream ofile;
   ofile.open(output_name.c_str());
-  
-  ofile << nx << " " << ny << " " << std::endl;
+
+  ofile << nx << std::endl;
   for(int i=padding ; i<nx+padding; i++) {
-    for(int j=padding; j<ny+padding; j++) {
-      ofile << A[iterations-1][i][j] << " ";
-    }
-    ofile << std::endl;
+    ofile << A[i] << " ";
   }
+  ofile << std::endl;
 }

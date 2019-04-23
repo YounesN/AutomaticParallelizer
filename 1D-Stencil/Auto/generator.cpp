@@ -25,22 +25,19 @@ int main(int argc, char *argv[])
 
   // dimension sizes
   int nx = atoi(argv[2]);
-  int ny = atoi(argv[2]);
   float max_number = 100;
 
   // provide seed number
   srand (static_cast <unsigned> (time(0)));
 
   // output the first line which is the dimensions
-  ofile << nx << " " << ny << " " << std::endl;
+  ofile << nx << std::endl;
   for(int i=0 ; i<nx; i++) {
-    for(int j=0; j<ny; j++) {
-      float r = static_cast <float> (rand()) /
-        (static_cast <float> (RAND_MAX/max_number));
-      ofile << r << " ";
-    }
-    ofile << std::endl;
+    float r = static_cast <float> (rand()) /
+      (static_cast <float> (RAND_MAX/max_number));
+    ofile << r << " ";
   }
+  ofile << std::endl;
 
   // close the file
   ofile.close();

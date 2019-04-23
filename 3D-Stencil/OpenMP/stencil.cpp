@@ -17,27 +17,24 @@ Stencil::Stencil(std::string fn, int it) : A(NULL)
 Stencil::~Stencil()
 {
   // free array
-  delete4DArray(A);
+  delete3DArray(A);
 }
 
 // delete a 3D array
-void Stencil::delete4DArray(float ****arr)
+void Stencil::delete3DArray(float ***arr)
 {
   // free up data array
-  for(int it=0; it<iterations; it++) {
-    for(int i=0; i<nx; i++) {
-      for(int j=0; j<ny; j++) {
-        delete [] arr[it][i][j];
-      }
-      delete [] arr[it][i];
+  for(int i=0; i<nx; i++) {
+    for(int j=0; j<ny; j++) {
+      delete [] arr[i][j];
     }
-    delete [] arr[it];
+    delete [] arr[i];
   }
   delete [] arr;
 }
 
 // allocate a 3D array
-void Stencil::allocate4DArray(float *****arr)
+void Stencil::allocate3DArray(float ****arr)
 {
   // check to see if data is already allocated
   // for now let's just exit
@@ -52,17 +49,14 @@ void Stencil::allocate4DArray(float *****arr)
 
   // allocate the 3D array based on the size
   // and initialize to 0.0
-  (*arr) = new float***[iterations];
-  for(int it=0; it<iterations; it++) {
-    (*arr)[it] = new float**[nx + pad];
-    for(int i=0; i<nx+pad; i++) {
-      (*arr)[it][i] = new float*[ny + pad];
-      for(int j=0; j<ny+pad; j++) {
-        (*arr)[it][i][j] = new float[nz + pad];
+  (*arr) = new float**[nx+pad];
+  for(int i=0; i<nx+pad; i++) {
+    (*arr)[i] = new float*[ny + pad];
+    for(int j=0; j<ny+pad; j++) {
+      (*arr)[i][j] = new float[nz + pad];
 
-        // set every elemento to zero
-        memset((*arr)[it][i][j], 0.0, sizeof(float) * (nz+pad));
-      }
+      // set every elemento to zero
+      memset((*arr)[i][j], 0.0, sizeof(float) * (nz+pad));
     }
   }
 }
@@ -84,13 +78,14 @@ void Stencil::ReadData()
     ifile >> nx >> ny >> nz;
 
     // allocate both A0 and ANext arrays
-    allocate4DArray(&A);
+    allocate3DArray(&A);
+    allocate3DArray(&B);
 
     // read the data
     for(i=padding; i<nx+padding; i++) {
       for(j=padding; j<ny+padding; j++) {
         for(k=padding; k<nz+padding; k++) {
-          ifile >> A[0][i][j][k];
+          ifile >> A[i][j][k];
         }
       }
     }
@@ -113,10 +108,17 @@ void Stencil::RunStencil()
     for(i=padding; i<nx+padding; i++) {
       for(j=padding; j<ny+padding; j++) {
         for(k=padding; k<nz+padding; k++) {
-          A[it+1][i][j][k] = (A[it][i][j][k-1] + A[it][i][j][k+1] + 
-                            A[it][i][j-1][k] + A[it][i][j+1][k] +
-                            A[it][i-1][j][k] + A[it][i+1][j][k] -
-                            6 * A[it][i][j][k]);
+          B[i][j][k] = (A[i][j][k-1] + A[i][j][k+1] + 
+                        A[i][j-1][k] + A[i][j+1][k] +
+                        A[i-1][j][k] + A[i+1][j][k] +
+                        A[i][j][k]) * (1.0/7.0);
+        }
+      }
+    }
+    for(i=padding; i<nx+padding; i++) {
+      for(j=padding; j<ny+padding; j++) {
+        for(k=padding; k<nz+padding; k++) {
+          A[i][j][k] = B[i][j][k];
         }
       }
     }
@@ -132,7 +134,7 @@ void Stencil::OutputData(std::string output_name)
   for(int i=padding ; i<nx+padding; i++) {
     for(int j=padding; j<ny+padding; j++) {
       for(int k=padding; k<nz+padding; k++) {
-        ofile << A[iterations-1][i][j][k] << " ";
+        ofile << A[i][j][k] << " ";
       }
       ofile << std::endl;
     }
